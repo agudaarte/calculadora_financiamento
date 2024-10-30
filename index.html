@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora à Vista vs. Financiamento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0038A8;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1, h2 {
+            color: #fff;
+        }
+        form {
+            background-color: #f0f8ff;
+            color: #333;
+            border-radius: 8px;
+            padding: 20px;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select, button {
+            margin-top: 5px;
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button {
+            background-color: #0038A8;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #001f5b;
+        }
+        .resultados {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #000;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            text-align: left;
+            display: none;
+        }
+        .link-recomendado {
+            color: #0038A8;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Calculadora à Vista vs. Financiamento</h1>
+    <h2>Veja qual opção pode ser mais vantajosa: financiar ou investir para comprar à vista</h2>
+
+    <form id="form">
+        <label for="nomeBem">Nome do Bem a ser Adquirido:</label>
+        <input type="text" id="nomeBem" required>
+
+        <label for="valorAtivo">Valor do Bem (R$):</label>
+        <input type="number" id="valorAtivo" min="0" step="0.01" required>
+
+        <label for="valorEntrada">Valor da Entrada (R$):</label>
+        <input type="number" id="valorEntrada" min="0" step="0.01" required>
+
+        <label for="parcela">Valor da Parcela do Financiamento (R$):</label>
+        <input type="number" id="parcela" min="0" step="0.01" required>
+
+        <label for="tempoFinanciamento">Prazo do Financiamento:</label>
+        <input type="number" id="tempoFinanciamento" min="1" required>
+        
+        <label for="unidadeTempo">Escolha o período:</label>
+        <select id="unidadeTempo" required>
+            <option value="meses">Meses</option>
+            <option value="anos">Anos</option>
+        </select>
+
+        <button type="button" onclick="calcular()">Calcular Resultados</button>
+    </form>
+
+    <div class="resultados" id="resultados">
+        <h3>Resultados</h3>
+        <div id="detalhesFinanciamento"></div>
+        <div id="detalhesInvestimento"></div>
+        <p><strong>Análise Comparativa:</strong></p>
+        <p id="analiseComparativa"></p>
+        <p id="recomendacao"></p>
+    </div>
+
+    <footer>
+        © 2024 Gabriel Alcantara. Todos os direitos reservados.<br>
+        Este site e seu conteúdo são propriedade de Gabriel Alcantara. Nenhuma parte deste site pode ser reproduzida, distribuída, ou utilizada sem permissão expressa.<br>
+        Conecte-se comigo no <a href="https://www.linkedin.com/in/gabrielfaa/" target="_blank" style="color: #fff;">LinkedIn</a> ou e-mail: <a href="mailto:agudaarte@gmail.com" style="color: #fff;">agudaarte@gmail.com</a>.
+    </footer>
+
+    <script>
+        function calcular() {
+            // Coleta os dados do formulário
+            const nomeBem = document.getElementById("nomeBem").value;
+            const valorAtivo = parseFloat(document.getElementById("valorAtivo").value);
+            const valorEntrada = parseFloat(document.getElementById("valorEntrada").value);
+            const parcela = parseFloat(document.getElementById("parcela").value);
+            let tempo = parseInt(document.getElementById("tempoFinanciamento").value);
+            const unidadeTempo = document.getElementById("unidadeTempo").value;
+
+            // Converte tempo em meses caso seja em anos
+            if (unidadeTempo === "anos") {
+                tempo *= 12;
+            }
+
+            // Calcula o total do financiamento com base na entrada e nas parcelas
+            const totalFinanciamento = valorEntrada + (parcela * tempo);
+
+            // Calcular investimento alternativo com taxa de 10% ao ano
+            const taxaInvestimentoMensal = Math.pow(1 + 0.10, 1 / 12) - 1;
+            let valorInvestimento = valorEntrada;
+            for (let i = 0; i < tempo; i++) {
+                valorInvestimento = (valorInvestimento + parcela) * (1 + taxaInvestimentoMensal);
+            }
+
+            // Exibir detalhes do financiamento
+            document.getElementById("detalhesFinanciamento").innerHTML = `
+                <strong>Financiamento do Bem (${nomeBem}):</strong><br>
+                Valor do Bem: R$ ${valorAtivo.toFixed(2).replace('.', ',')}<br>
+                Valor Total Pago no Financiamento: R$ ${totalFinanciamento.toFixed(2).replace('.', ',')}<br><br>
+            `;
+
+            // Mensagem de investimento alternativo
+            let mensagemInvestimento;
+            if (valorInvestimento >= valorAtivo) {
+                const sobra = valorInvestimento - valorAtivo;
+                mensagemInvestimento = `
+                    Se você investir o valor da entrada e as parcelas mensais a uma taxa de 10% ao ano, 
+                    após ${tempo} meses você terá acumulado R$ ${valorInvestimento.toFixed(2).replace('.', ',')}.<br>
+                    Pode comprar o bem à vista por R$ ${valorAtivo.toFixed(2).replace('.', ',')} e ainda sobraria R$ ${sobra.toFixed(2).replace('.', ',')}.
+                `;
+            } else {
+                mensagemInvestimento = `
+                    Se você investir o valor da entrada e as parcelas mensais a uma taxa de 10% ao ano, 
+                    após ${tempo} meses você terá acumulado R$ ${valorInvestimento.toFixed(2).replace('.', ',')}.<br>
+                    No entanto, esse valor ainda não é suficiente para comprar o bem à vista, que custa R$ ${valorAtivo.toFixed(2).replace('.', ',')}.
+                `;
+            }
+
+            // Exibir detalhes do investimento
+            document.getElementById("detalhesInvestimento").innerHTML = `
+                <strong>Investimento Alternativo:</strong><br>
+                ${mensagemInvestimento}<br><br>
+            `;
+
+            // Análise comparativa
+            document.getElementById("analiseComparativa").innerHTML = `
+                <strong>Conclusão:</strong> Financiar permite a aquisição imediata do bem, mas o investimento proporciona um saldo potencial maior ao final do período.<br>
+                Avalie a urgência de adquirir o bem versus o ganho financeiro a longo prazo.
+            `;
+
+            // Recomendação com link para calculadora de rentabilidade
+            document.getElementById("recomendacao").innerHTML = `
+                Para explorar mais sobre a rentabilidade dos seus investimentos, confira nossa 
+                <a href="https://calculadorarentabilidadeanual.netlify.app/" target="_blank" class="link-recomendado">Calculadora de Rentabilidade Anual</a>.
+            `;
+
+            // Exibe a seção de resultados
+            document.getElementById("resultados").style.display = "block";
+        }
+    </script>
+
+</body>
+</html>
